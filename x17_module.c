@@ -1,6 +1,8 @@
 #include <Python.h>
-
+#include <stdio.h>
 #include "x17.h"
+#include<string.h>
+
 
 static PyObject *x17_getpowhash(PyObject *self, PyObject *args)
 {
@@ -17,9 +19,9 @@ static PyObject *x17_getpowhash(PyObject *self, PyObject *args)
     output = PyMem_Malloc(32);
 
 #if PY_MAJOR_VERSION >= 3
-    x17hash((char *)PyBytes_AsString((PyObject*) input), output);
+    x17hash((char*)PyBytes_AsString((PyObject*) input), output, PyBytes_Size((PyObject*) input));
 #else
-    x17hash((char *)PyString_AsString((PyObject*) input), output);
+    x17hash((char*)PyString_AsString((PyObject*) input), output, PyBytes_Size((PyObject*) input));
 #endif
     Py_DECREF(input);
 #if PY_MAJOR_VERSION >= 3
@@ -32,7 +34,7 @@ static PyObject *x17_getpowhash(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef X17Methods[] = {
-    { "getPoWHash", x17_getpowhash, METH_VARARGS, "Returns the proof of work hash using X17 hash" },
+    { "hash", x17_getpowhash, METH_VARARGS, "Returns the proof of work hash using X17 hash" },
     { NULL, NULL, 0, NULL }
 };
 

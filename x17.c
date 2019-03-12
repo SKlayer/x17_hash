@@ -29,77 +29,6 @@
 #include "sph/sph_sha2.h"
 #include "sph/sph_haval.h"
 
-#ifdef _MSC_VER
-
-#include <stdlib.h>
-#define bswap_32(x) _byteswap_ulong(x)
-#define bswap_64(x) _byteswap_uint64(x)
-
-#elif defined(__APPLE__)
-
-// Mac OS X / Darwin features
-#include <libkern/OSByteOrder.h>
-#define bswap_32(x) OSSwapInt32(x)
-#define bswap_64(x) OSSwapInt64(x)
-
-#elif defined(__sun) || defined(sun)
-
-#include <sys/byteorder.h>
-#define bswap_32(x) BSWAP_32(x)
-#define bswap_64(x) BSWAP_64(x)
-
-#elif defined(__FreeBSD__)
-
-#include <sys/endian.h>
-#define bswap_32(x) bswap32(x)
-#define bswap_64(x) bswap64(x)
-
-#elif defined(__OpenBSD__)
-
-#include <sys/types.h>
-#define bswap_32(x) swap32(x)
-#define bswap_64(x) swap64(x)
-
-#elif defined(__NetBSD__)
-
-#include <sys/types.h>
-#include <machine/bswap.h>
-#if defined(__BSWAP_RENAME) && !defined(__bswap_32)
-#define bswap_32(x) bswap32(x)
-#define bswap_64(x) bswap64(x)
-#endif
-
-#else
-
-#include <byteswap.h>
-
-#endif
-
-#ifndef htobe32
-# if __BYTE_ORDER == __LITTLE_ENDIAN
-#  define htole16(x) (x)
-#  define htole32(x) (x)
-#  define htole64(x) (x)
-#  define le32toh(x) (x)
-#  define le64toh(x) (x)
-#  define be32toh(x) bswap_32(x)
-#  define be64toh(x) bswap_64(x)
-#  define htobe32(x) bswap_32(x)
-#  define htobe64(x) bswap_64(x)
-# elif __BYTE_ORDER == __BIG_ENDIAN
-#  define htole16(x) bswap_16(x)
-#  define htole32(x) bswap_32(x)
-#  define le32toh(x) bswap_32(x)
-#  define le64toh(x) bswap_64(x)
-#  define htole64(x) bswap_64(x)
-#  define be32toh(x) (x)
-#  define be64toh(x) (x)
-#  define htobe32(x) (x)
-#  define htobe64(x) (x)
-#else
-#error UNKNOWN BYTE ORDER
-#endif
-#endif
 
 
 typedef struct {
@@ -146,16 +75,8 @@ void init_X17hash_contexts()
     sph_haval256_5_init(&base_contexts.haval1);
 }
 
-static inline void be32enc_vect(uint32_t *dst, const uint32_t *src, uint32_t len)
-{
-    uint32_t i;
 
-    for (i = 0; i < len; i++)
-        dst[i] = htobe32(src[i]);
-}
-
-
-void x17hash(const char *input, char *output)
+void x17hash(const char *input, char *output, int size)
 {
     init_X17hash_contexts();
     Xhash_context_holder ctx;
@@ -163,7 +84,7 @@ void x17hash(const char *input, char *output)
 
     memcpy(&ctx, &base_contexts, sizeof(base_contexts));
 
-    sph_blake512 (&ctx.blake1, input, 80);
+    sph_blake512 (&ctx.blake1, input, size);
     sph_blake512_close (&ctx.blake1, hashA);
 
     sph_bmw512 (&ctx.bmw1, hashA, 64);

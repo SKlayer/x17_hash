@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 
-void x17hash(const char *input, char *output);
+void x17hash(const char *input, char *output, int size);
 
 #ifdef __cplusplus
 }
