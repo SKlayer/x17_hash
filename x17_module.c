@@ -1,7 +1,5 @@
 #include <Python.h>
-#include <stdio.h>
 #include "x17.h"
-#include<string.h>
 
 
 static PyObject *x17_getpowhash(PyObject *self, PyObject *args)
