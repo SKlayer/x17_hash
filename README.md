@@ -3,6 +3,10 @@ A x17 Python Hash lib... with crypto currency like Verge...
 # Install
 python ./setup.py install
 # use
+`
+Method: hash(input:'Bytes'), return hash digest(Bytes)
+`
+
 ```
 import x17hash
 import binascii
